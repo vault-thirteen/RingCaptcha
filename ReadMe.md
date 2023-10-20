@@ -152,11 +152,11 @@ images. Some users may also find network storages and virtual disks useful for
 increasing performance. The service is not designed for super high loads by 
 default.
 
-## Liveness handler
+# Liveness handler
 
 Liveness handler is accessible with the same _JSON-RPC 2.0_ interface.
 
-Request:
+### Liveness request
 ```json
 {
     "jsonrpc": "2.0",
@@ -166,7 +166,7 @@ Request:
 }
 ```
 
-Response:
+### Liveness response
 ```json
 {
   "jsonrpc": "2.0",
