@@ -46,7 +46,6 @@ func processImages(imgPaths []string, outputFilePath string) (err error) {
 		imgs = append(imgs, rgbaImg)
 	}
 
-	//TODO
 	ru := imgs[0].Rect.Union(imgs[1].Rect)
 
 	imgB := im.DrawImageToCanvas(imgs[0], ru)
