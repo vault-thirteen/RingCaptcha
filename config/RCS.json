@@ -1,0 +1,18 @@
+{
+  "http": {
+    "host": "localhost",
+    "port": 80
+  },
+  "captcha": {
+    "storeImages": true,
+    "imagesFolder": "img",
+    "imageWidth": 256,
+    "imageHeight": 256,
+    "imageTTLSec": 60,
+    "clearImagesFolderAtStart": true,
+    "useHttpServerForImages": true,
+    "httpServerHost": "localhost",
+    "httpServerPort": 81,
+    "httpServerName": "RCS"
+  }
+}
