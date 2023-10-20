@@ -151,3 +151,28 @@ either disabling saves to disk storage or by decreasing dimensions of captcha
 images. Some users may also find network storages and virtual disks useful for 
 increasing performance. The service is not designed for super high loads by 
 default.
+
+## Liveness handler
+
+Liveness handler is accessible with the same _JSON-RPC 2.0_ interface.
+
+Request:
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 3,
+    "method": "Ping",
+    "params": {}
+}
+```
+
+Response:
+```json
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "ok": true
+  },
+  "id": 3
+}
+```
