@@ -36,7 +36,7 @@ const (
 	ErrAnomaly            = "anomaly"
 )
 
-func CreateCaptchaImage(w, h uint) (canvas *image.NRGBA, ringCount uint, err error) {
+func CreateCaptchaImage(w, h uint, useSample bool, blend bool) (canvas *image.NRGBA, ringCount uint, err error) {
 	if (w < CaptchaImageMinWidth) || (h < CaptchaImageMinHeight) {
 		return nil, 0, errors.New(ErrDimensions)
 	}
@@ -56,7 +56,7 @@ func CreateCaptchaImage(w, h uint) (canvas *image.NRGBA, ringCount uint, err err
 	var layer *image.NRGBA
 
 	for i := uint(0); i < ringCount; i++ {
-		layer, err = createRingLayer(w, h)
+		layer, err = createRingLayer(w, h, useSample, blend)
 		if err != nil {
 			return nil, 0, err
 		}
@@ -95,7 +95,7 @@ func selectMaxRingCount(w, h uint) (maxRingCount uint) {
 	return RingMaxCount
 }
 
-func createRingLayer(w, h uint) (canvas *image.NRGBA, err error) {
+func createRingLayer(w, h uint, useSample bool, blend bool) (canvas *image.NRGBA, err error) {
 	canvas = image.NewNRGBA(
 		image.Rectangle{
 			Min: image.Point{X: 0, Y: 0},
@@ -130,7 +130,7 @@ func createRingLayer(w, h uint) (canvas *image.NRGBA, err error) {
 	}
 
 	// Draw a ring.
-	shape.DrawRingWithSimpleBrush(canvas, br, center, ringRadius, da)
+	shape.DrawRingWithSimpleBrush(canvas, br, center, ringRadius, da, useSample, blend)
 
 	return canvas, nil
 }

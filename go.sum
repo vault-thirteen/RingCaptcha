@@ -35,6 +35,7 @@ github.com/vault-thirteen/errorz v1.2.0/go.mod h1:+1mqgPir0fmbjS/MmElLOouoNycetm
 github.com/vault-thirteen/header v1.3.0 h1:mvmd0AAOst1BlwpmYcf6iRfPTXcbIEwJOrrvXVwUhac=
 github.com/vault-thirteen/header v1.3.0/go.mod h1:d5OZnwd79kKmCq0pGM++vmFdpZpYKDnnpYa0Nw1nTxo=
 github.com/vault-thirteen/tester v1.2.0 h1:eUfPZqS5bXbQ+6Zed9EceN3ddsOBBMZoU0y+/eJV8cc=
+github.com/vault-thirteen/tester v1.2.0/go.mod h1:UT1/YEVk2UWl+Jt7c/JhAw5LZwe5qL1cbK/QS016HrQ=
 github.com/ybbus/jsonrpc/v3 v3.1.4 h1:pPmgfWXnqR2GdIlealyCzmV6LV3nxm3w9gwA1B3cP3Y=
 github.com/ybbus/jsonrpc/v3 v3.1.4/go.mod h1:4HQTl0UzErqWGa6bSXhp8rIjifMAMa55E4D5wdhe768=
 golang.org/x/image v0.13.0 h1:3cge/F/QTkNLauhf2QoE9zp+7sr+ZcL4HnoZmdwg9sg=

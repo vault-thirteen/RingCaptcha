@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/vault-thirteen/RingCaptcha/pkg/captcha"
-	im "github.com/vault-thirteen/RingCaptcha/pkg/image"
+	"github.com/vault-thirteen/RingCaptcha/pkg/os"
 	"github.com/vault-thirteen/RingCaptcha/pkg/test/common"
 	"github.com/vault-thirteen/auxie/random"
 )
@@ -43,12 +43,12 @@ func processImage(outputFolderPath string, n int) (err error) {
 
 	var canvas *image.NRGBA
 	var ringCount uint
-	canvas, ringCount, err = captcha.CreateCaptchaImage(dim, dim)
+	canvas, ringCount, err = captcha.CreateCaptchaImage(dim, dim, true, false)
 	if err != nil {
 		return err
 	}
 
-	err = im.SaveImageAsPngFile(canvas, outputFilePath)
+	err = os.SaveImageAsPngFile(canvas, outputFilePath)
 	if err != nil {
 		return err
 	}

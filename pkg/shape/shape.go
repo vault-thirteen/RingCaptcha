@@ -10,7 +10,7 @@ import (
 )
 
 // DrawLineWithSimpleBrush draws a straight line using a simple brush.
-func DrawLineWithSimpleBrush(canvas *image.NRGBA, br *brush.SimpleBrush, p1, p2 g.Point2D) {
+func DrawLineWithSimpleBrush(canvas *image.NRGBA, br *brush.SimpleBrush, p1, p2 g.Point2D, blend bool) {
 	dx := p2.X - p1.X
 	dy := p2.Y - p1.Y
 	var p g.Point2D
@@ -19,20 +19,20 @@ func DrawLineWithSimpleBrush(canvas *image.NRGBA, br *brush.SimpleBrush, p1, p2 
 		for i := float64(0); i <= dx; i++ {
 			p.X = p1.X + i
 			p.Y = p1.Y + dj
-			brush.UseSimpleBrush(canvas, br, false, p)
+			brush.UseSimpleBrush(canvas, br, blend, p)
 		}
 	} else {
 		dj := dx / dy
 		for i := float64(0); i <= dy; i++ {
 			p.Y = p1.Y + i
 			p.X = p1.X + dj
-			brush.UseSimpleBrush(canvas, br, false, p)
+			brush.UseSimpleBrush(canvas, br, blend, p)
 		}
 	}
 
 }
 
-func DrawRingWithSimpleBrush(canvas *image.NRGBA, br *brush.SimpleBrush, center g.Point2D, radius float64, daDegree float64) {
+func DrawRingWithSimpleBrush(canvas *image.NRGBA, br *brush.SimpleBrush, center g.Point2D, radius float64, daDegree float64, useSample bool, blend bool) {
 	da := rad.DegreeToRadian(daDegree)                            // Delta alpha.
 	aMax := 2*math.Pi - 1.2*calculatePhiB(br.OuterRadius, radius) // Alpha maximum.
 	n := int(math.Floor(aMax / da))                               // Number of brush uses.
@@ -43,7 +43,11 @@ func DrawRingWithSimpleBrush(canvas *image.NRGBA, br *brush.SimpleBrush, center 
 	for i := 0; i < n; i++ {
 		p.X = math.Round(center.X + radius*math.Cos(a))
 		p.Y = math.Round(center.Y + radius*math.Sin(a))
-		brush.UseSimpleBrush(canvas, br, false, p)
+		if useSample {
+			brush.UseSimpleBrushS(canvas, br, blend, p)
+		} else {
+			brush.UseSimpleBrush(canvas, br, blend, p)
+		}
 
 		// Next.
 		a = a + daNormalized

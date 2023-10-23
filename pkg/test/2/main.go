@@ -9,6 +9,7 @@ import (
 	br "github.com/vault-thirteen/RingCaptcha/pkg/brush"
 	g "github.com/vault-thirteen/RingCaptcha/pkg/geometry"
 	im "github.com/vault-thirteen/RingCaptcha/pkg/image"
+	"github.com/vault-thirteen/RingCaptcha/pkg/os"
 	"github.com/vault-thirteen/RingCaptcha/pkg/shape"
 	"github.com/vault-thirteen/RingCaptcha/pkg/test/common"
 )
@@ -27,7 +28,7 @@ func processImages(outputFilePath string) (err error) {
 	im.FillCanvasWithColour(img, color.Transparent)
 	paintSomeShit(img)
 
-	err = im.SaveImageAsPngFile(img, outputFilePath)
+	err = os.SaveImageAsPngFile(img, outputFilePath)
 	if err != nil {
 		return err
 	}
@@ -59,18 +60,18 @@ func paintSomeShit(canvas *image.NRGBA) {
 
 	// Line emulator.
 	// Everything is good without blending.
-	shape.DrawLineWithSimpleBrush(canvas, br2, g.Point2D{X: 200, Y: 200}, g.Point2D{X: 400, Y: 200})
+	shape.DrawLineWithSimpleBrush(canvas, br2, g.Point2D{X: 200, Y: 200}, g.Point2D{X: 400, Y: 200}, false)
 
 	// Line #2.
 	br3 := &br.SimpleBrush{InnerRadius: 16.0, OuterRadius: 32.0, Colour: br.ColourYellow}
-	shape.DrawLineWithSimpleBrush(canvas, br3, g.Point2D{X: 100, Y: 300}, g.Point2D{X: 400, Y: 300})
+	shape.DrawLineWithSimpleBrush(canvas, br3, g.Point2D{X: 100, Y: 300}, g.Point2D{X: 400, Y: 300}, false)
 
 	// Line #3.
 	// No blending.
 	br4 := &br.SimpleBrush{InnerRadius: 16.0, OuterRadius: 32.0, Colour: br.ColourCyan}
-	shape.DrawLineWithSimpleBrush(canvas, br4, g.Point2D{X: 350, Y: 150}, g.Point2D{X: 350, Y: 350})
+	shape.DrawLineWithSimpleBrush(canvas, br4, g.Point2D{X: 350, Y: 150}, g.Point2D{X: 350, Y: 350}, false)
 
 	// Ring #1.
 	br5 := &br.SimpleBrush{InnerRadius: 4.0, OuterRadius: 6.0, Colour: br.ColourMagenta}
-	shape.DrawRingWithSimpleBrush(canvas, br5, g.Point2D{X: 100, Y: 400}, 50, 15.0)
+	shape.DrawRingWithSimpleBrush(canvas, br5, g.Point2D{X: 100, Y: 400}, 50, 15.0, false, false)
 }

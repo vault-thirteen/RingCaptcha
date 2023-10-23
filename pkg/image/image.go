@@ -2,16 +2,13 @@ package image
 
 import (
 	"errors"
-	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
 	_ "image/gif"
 	_ "image/jpeg"
-	"image/png"
 	"math"
 	"os"
-	"path/filepath"
 
 	br "github.com/vault-thirteen/RingCaptcha/pkg/brush"
 	"github.com/vault-thirteen/RingCaptcha/pkg/colour"
@@ -79,32 +76,6 @@ func ConvertImageToRGBA(in image.Image) (out *image.RGBA) {
 	draw.Draw(out, out.Bounds(), in, b.Min, draw.Src)
 
 	return out
-}
-
-func SaveImageAsPngFile(img image.Image, filePath string) (err error) {
-	if filepath.Ext(filePath) != `.png` {
-		return fmt.Errorf("file extension mismatch: png vs %s", filepath.Ext(filePath))
-	}
-
-	var f *os.File
-	f, err = os.Create(filePath)
-	if err != nil {
-		return err
-	}
-
-	defer func() {
-		derr := f.Close()
-		if derr != nil {
-			err = errorz.Combine(err, derr)
-		}
-	}()
-
-	err = png.Encode(f, img)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // DrawImageToCanvas draws an image on another canvas.

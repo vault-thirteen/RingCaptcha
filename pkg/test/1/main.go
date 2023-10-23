@@ -9,6 +9,7 @@ import (
 	"github.com/vault-thirteen/RingCaptcha/pkg/brush"
 	g "github.com/vault-thirteen/RingCaptcha/pkg/geometry"
 	im "github.com/vault-thirteen/RingCaptcha/pkg/image"
+	"github.com/vault-thirteen/RingCaptcha/pkg/os"
 	"github.com/vault-thirteen/RingCaptcha/pkg/test/common"
 )
 
@@ -59,7 +60,7 @@ func processImages(imgPaths []string, outputFilePath string) (err error) {
 
 	paintSomeShit(imgO)
 
-	err = im.SaveImageAsPngFile(imgO, outputFilePath)
+	err = os.SaveImageAsPngFile(imgO, outputFilePath)
 	if err != nil {
 		return err
 	}
