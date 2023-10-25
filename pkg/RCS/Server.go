@@ -80,6 +80,10 @@ func (srv *Server) GetListenDsn() (dsn string) {
 	return srv.listenDsn
 }
 
+func (srv *Server) GetCaptchaManagerListenDsn() (dsn string) {
+	return srv.captchaManager.GetListenDsn()
+}
+
 func (srv *Server) GetStopChannel() *chan bool {
 	return &srv.mustBeStopped
 }
@@ -117,17 +121,6 @@ func (srv *Server) Stop() (err error) {
 }
 
 func (srv *Server) startHttpServer() {
-	go func() {
-		var listenError error
-		listenError = srv.httpServer.ListenAndServe()
-
-		if (listenError != nil) && (listenError != http.ErrServerClosed) {
-			srv.httpErrors <- listenError
-		}
-	}()
-}
-
-func (srv *Server) startImageHttpServer() {
 	go func() {
 		var listenError error
 		listenError = srv.httpServer.ListenAndServe()

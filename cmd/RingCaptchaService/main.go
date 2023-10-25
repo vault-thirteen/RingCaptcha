@@ -35,7 +35,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("HTTP Server: " + srv.GetListenDsn())
+	fmt.Println("RPC HTTP Server: " + srv.GetListenDsn())
+	if stn.CaptchaSettings.UseHttpServerForImages {
+		fmt.Println("Images HTTP Server: " + srv.GetCaptchaManagerListenDsn())
+	}
 
 	serverMustBeStopped := srv.GetStopChannel()
 	waitForQuitSignalFromOS(serverMustBeStopped)

@@ -139,6 +139,10 @@ func (cm *CaptchaManager) initHttpServer(
 	return nil
 }
 
+func (cm *CaptchaManager) GetListenDsn() (dsn string) {
+	return cm.listenDsn
+}
+
 func (cm *CaptchaManager) httpRouter(rw http.ResponseWriter, req *http.Request) {
 	id := req.URL.Query().Get("id")
 
