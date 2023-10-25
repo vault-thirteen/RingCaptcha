@@ -16,7 +16,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/vault-thirteen/RingCaptcha/pkg/RCS/models"
 	"github.com/vault-thirteen/RingCaptcha/pkg/captcha"
-	im "github.com/vault-thirteen/RingCaptcha/pkg/image"
+	cos "github.com/vault-thirteen/RingCaptcha/pkg/os"
 	hdr "github.com/vault-thirteen/header"
 )
 
@@ -180,7 +180,7 @@ func (cm *CaptchaManager) httpRouter(rw http.ResponseWriter, req *http.Request) 
 func (cm *CaptchaManager) CreateCaptcha() (resp *models.CreateCaptchaResponse, err error) {
 	var img *image.NRGBA
 	var ringCount uint
-	img, ringCount, err = captcha.CreateCaptchaImage(cm.imageWidth, cm.imageHeight)
+	img, ringCount, err = captcha.CreateCaptchaImage(cm.imageWidth, cm.imageHeight, true, false)
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +232,7 @@ func (cm *CaptchaManager) createRandomUID() (uid string) {
 }
 
 func (cm *CaptchaManager) saveImage(uid string, img *image.NRGBA) (err error) {
-	err = im.SaveImageAsPngFile(img, makeRecordFilePath(cm.imagesFolder, uid))
+	err = cos.SaveImageAsPngFile(img, makeRecordFilePath(cm.imagesFolder, uid))
 	if err != nil {
 		return err
 	}
