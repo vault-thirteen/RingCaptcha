@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/osamingo/jsonrpc/v2"
+	"github.com/vault-thirteen/RingCaptcha/pkg/RCS/client"
 	"github.com/vault-thirteen/RingCaptcha/pkg/RCS/models"
 )
 
@@ -16,6 +17,31 @@ const (
 	RpcErrorCodeCreateCaptcha = 1
 	RpcErrorCodeCheckCaptcha  = 2
 )
+
+func (srv *Server) initJsonRpcHandlers() (err error) {
+	err = srv.jsonRpcHandlers.RegisterMethod(client.FuncPing, PingHandler{}, models.PingParams{}, models.PingResult{})
+	if err != nil {
+		return err
+	}
+
+	err = srv.jsonRpcHandlers.RegisterMethod(client.FuncCreateCaptcha, CreateCaptchaHandler{Server: srv}, models.CreateCaptchaParams{}, models.CreateCaptchaResult{})
+	if err != nil {
+		return err
+	}
+
+	err = srv.jsonRpcHandlers.RegisterMethod(client.FuncCheckCaptcha, CheckCaptchaHandler{Server: srv}, models.CheckCaptchaParams{}, models.CheckCaptchaResult{})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type PingHandler struct{}
+
+func (h PingHandler) ServeJSONRPC(c context.Context, params *json.RawMessage) (any, *jsonrpc.Error) {
+	return models.PingResult{OK: true}, nil
+}
 
 type CreateCaptchaHandler struct {
 	Server *Server
@@ -81,10 +107,4 @@ func (h CheckCaptchaHandler) ServeJSONRPC(c context.Context, params *json.RawMes
 	rpcResponse.TimeSpent = time.Now().Sub(timeStart).Milliseconds()
 
 	return rpcResponse, nil
-}
-
-type PingHandler struct{}
-
-func (h PingHandler) ServeJSONRPC(c context.Context, params *json.RawMessage) (any, *jsonrpc.Error) {
-	return models.PingResult{OK: true}, nil
 }

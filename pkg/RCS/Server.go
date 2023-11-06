@@ -11,7 +11,6 @@ import (
 
 	"github.com/osamingo/jsonrpc/v2"
 	capman "github.com/vault-thirteen/RingCaptcha/pkg/RCS/CM"
-	"github.com/vault-thirteen/RingCaptcha/pkg/RCS/models"
 	"github.com/vault-thirteen/RingCaptcha/pkg/RCS/settings"
 )
 
@@ -172,25 +171,6 @@ main_loop:
 
 func (srv *Server) httpRouter(rw http.ResponseWriter, req *http.Request) {
 	srv.jsonRpcHandlers.ServeHTTP(rw, req)
-}
-
-func (srv *Server) initJsonRpcHandlers() (err error) {
-	err = srv.jsonRpcHandlers.RegisterMethod("CreateCaptcha", CreateCaptchaHandler{Server: srv}, models.CreateCaptchaParams{}, models.CreateCaptchaResult{})
-	if err != nil {
-		return err
-	}
-
-	err = srv.jsonRpcHandlers.RegisterMethod("CheckCaptcha", CheckCaptchaHandler{Server: srv}, models.CheckCaptchaParams{}, models.CheckCaptchaResult{})
-	if err != nil {
-		return err
-	}
-
-	err = srv.jsonRpcHandlers.RegisterMethod("Ping", PingHandler{}, models.PingParams{}, models.PingResult{})
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (srv *Server) initCaptchaManager() (err error) {
