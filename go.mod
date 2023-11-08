@@ -11,7 +11,7 @@ require (
 	github.com/vault-thirteen/header v1.3.0
 	github.com/vault-thirteen/tester v1.2.0
 	github.com/ybbus/jsonrpc/v3 v3.1.4
-	golang.org/x/image v0.13.0
+	golang.org/x/image v0.14.0
 )
 
 require (
