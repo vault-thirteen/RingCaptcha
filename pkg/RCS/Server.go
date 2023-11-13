@@ -33,7 +33,6 @@ type Server struct {
 
 	// Captcha manager.
 	captchaManager *capman.CaptchaManager
-	cmGuard        sync.Mutex
 
 	// JSON-RPC handlers.
 	jsonRpcHandlers *jsonrpc.MethodRepository

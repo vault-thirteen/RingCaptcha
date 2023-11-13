@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -50,6 +51,9 @@ type CaptchaManager struct {
 	listenDsn              string
 	httpErrorsChan         *chan error
 	httpServerName         string
+
+	// Storage guard.
+	sg *sync.Mutex
 }
 
 func NewCaptchaManager(
@@ -90,6 +94,7 @@ func NewCaptchaManager(
 		registry:                 NewRegistry(storeImages, imagesFolder, imageTTLSec),
 		clearImagesFolderAtStart: clearImagesFolderAtStart,
 		useHttpServerForImages:   useHttpServerForImages,
+		sg:                       new(sync.Mutex),
 	}
 
 	if cm.clearImagesFolderAtStart {
@@ -236,6 +241,9 @@ func (cm *CaptchaManager) createRandomUID() (uid string) {
 }
 
 func (cm *CaptchaManager) saveImage(uid string, img *image.NRGBA) (err error) {
+	cm.sg.Lock()
+	defer cm.sg.Unlock()
+
 	err = cos.SaveImageAsPngFile(img, makeRecordFilePath(cm.imagesFolder, uid))
 	if err != nil {
 		return err

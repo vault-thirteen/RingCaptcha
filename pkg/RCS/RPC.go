@@ -4,18 +4,12 @@ package rcs
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"time"
 
 	"github.com/osamingo/jsonrpc/v2"
 	"github.com/vault-thirteen/RingCaptcha/pkg/RCS/client"
 	"github.com/vault-thirteen/RingCaptcha/pkg/RCS/models"
-)
-
-const (
-	RpcErrorCodeCreateCaptcha = 1
-	RpcErrorCodeCheckCaptcha  = 2
 )
 
 func (srv *Server) initJsonRpcHandlers() (err error) {
@@ -46,38 +40,33 @@ type PingHandler struct {
 	Server *Server
 }
 
-func (h PingHandler) ServeJSONRPC(c context.Context, params *json.RawMessage) (any, *jsonrpc.Error) {
-	return models.PingResult{OK: true}, nil
+func (h PingHandler) ServeJSONRPC(_ context.Context, _ *json.RawMessage) (any, *jsonrpc.Error) {
+	h.Server.diag.incTotalRequestsCount()
+	result := models.PingResult{OK: true}
+	h.Server.diag.incSuccessfulRequestsCount()
+	return result, nil
 }
 
 type CreateCaptchaHandler struct {
 	Server *Server
 }
 
-func (h CreateCaptchaHandler) ServeJSONRPC(c context.Context, params *json.RawMessage) (any, *jsonrpc.Error) {
+func (h CreateCaptchaHandler) ServeJSONRPC(_ context.Context, _ *json.RawMessage) (any, *jsonrpc.Error) {
+	h.Server.diag.incTotalRequestsCount()
 	var timeStart = time.Now()
 
-	srvResponse, err := h.Server.createCaptcha()
-	if err != nil {
-		return nil, &jsonrpc.Error{
-			Code:    RpcErrorCodeCreateCaptcha,
-			Message: err.Error(),
-		}
+	result, jerr := h.Server.createCaptcha()
+	if jerr != nil {
+		return nil, jerr
 	}
 
-	rpcResponse := &models.CreateCaptchaResult{
-		TaskId:              srvResponse.TaskId,
-		ImageFormat:         srvResponse.ImageFormat,
-		IsImageDataReturned: srvResponse.IsImageDataReturned,
+	var taskDuration = time.Now().Sub(timeStart).Milliseconds()
+	if result != nil {
+		result.TimeSpent = taskDuration
 	}
 
-	if rpcResponse.IsImageDataReturned {
-		rpcResponse.ImageDataB64 = base64.StdEncoding.EncodeToString(srvResponse.ImageData)
-	}
-
-	rpcResponse.TimeSpent = time.Now().Sub(timeStart).Milliseconds()
-
-	return rpcResponse, nil
+	h.Server.diag.incSuccessfulRequestsCount()
+	return result, nil
 }
 
 type CheckCaptchaHandler struct {
@@ -85,35 +74,28 @@ type CheckCaptchaHandler struct {
 }
 
 func (h CheckCaptchaHandler) ServeJSONRPC(c context.Context, params *json.RawMessage) (any, *jsonrpc.Error) {
+	h.Server.diag.incTotalRequestsCount()
+	var timeStart = time.Now()
+
 	var p models.CheckCaptchaParams
 	jerr := jsonrpc.Unmarshal(params, &p)
 	if jerr != nil {
 		return nil, jerr
 	}
 
-	var timeStart = time.Now()
-
-	srvResponse, err := h.Server.checkCaptcha(
-		&models.CheckCaptchaRequest{
-			TaskId: p.TaskId,
-			Value:  p.Value,
-		},
-	)
-	if err != nil {
-		return nil, &jsonrpc.Error{
-			Code:    RpcErrorCodeCheckCaptcha,
-			Message: err.Error(),
-		}
+	var result *models.CheckCaptchaResult
+	result, jerr = h.Server.checkCaptcha(&p)
+	if jerr != nil {
+		return nil, jerr
 	}
 
-	rpcResponse := &models.CheckCaptchaResult{
-		TaskId:    srvResponse.TaskId,
-		IsSuccess: srvResponse.IsSuccess,
+	var taskDuration = time.Now().Sub(timeStart).Milliseconds()
+	if result != nil {
+		result.TimeSpent = taskDuration
 	}
 
-	rpcResponse.TimeSpent = time.Now().Sub(timeStart).Milliseconds()
-
-	return rpcResponse, nil
+	h.Server.diag.incSuccessfulRequestsCount()
+	return result, nil
 }
 
 type ShowDiagnosticDataHandler struct {
@@ -122,7 +104,6 @@ type ShowDiagnosticDataHandler struct {
 
 func (h ShowDiagnosticDataHandler) ServeJSONRPC(_ context.Context, _ *json.RawMessage) (any, *jsonrpc.Error) {
 	h.Server.diag.incTotalRequestsCount()
-
 	var timeStart = time.Now()
 
 	result, jerr := h.Server.showDiagnosticData()
@@ -136,6 +117,5 @@ func (h ShowDiagnosticDataHandler) ServeJSONRPC(_ context.Context, _ *json.RawMe
 	}
 
 	h.Server.diag.incSuccessfulRequestsCount()
-
 	return result, nil
 }
