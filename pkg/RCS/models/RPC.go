@@ -1,14 +1,25 @@
 package models
 
-type CreateCaptchaParams struct {
+type CommonResult struct {
+	// Time taken to perform the request, in milliseconds.
+	TimeSpent int64 `json:"timeSpent"`
 }
 
+type PingParams struct{}
+
+type PingResult struct {
+	OK bool `json:"ok"`
+}
+
+type CreateCaptchaParams struct{}
+
 type CreateCaptchaResult struct {
+	CommonResult
+
 	TaskId              string `json:"taskId"`
 	ImageFormat         string `json:"imageFormat"`
 	IsImageDataReturned bool   `json:"isImageDataReturned"`
 	ImageDataB64        string `json:"imageDataB64,omitempty"`
-	TimeSpent           int64  `json:"timeSpent"` // Time taken to make the action, in milliseconds.
 }
 
 type CheckCaptchaParams struct {
@@ -17,13 +28,17 @@ type CheckCaptchaParams struct {
 }
 
 type CheckCaptchaResult struct {
+	CommonResult
+
 	TaskId    string `json:"taskId"`
 	IsSuccess bool   `json:"isSuccess"`
-	TimeSpent int64  `json:"timeSpent"` // Time taken to make the action, in milliseconds.
 }
 
-type PingParams struct{}
+type ShowDiagnosticDataParams struct{}
 
-type PingResult struct {
-	OK bool `json:"ok"`
+type ShowDiagnosticDataResult struct {
+	CommonResult
+
+	TotalRequestsCount      uint64 `json:"totalRequestsCount"`
+	SuccessfulRequestsCount uint64 `json:"successfulRequestsCount"`
 }

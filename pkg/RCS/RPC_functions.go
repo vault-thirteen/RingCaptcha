@@ -1,8 +1,11 @@
 package rcs
 
-import "github.com/vault-thirteen/RingCaptcha/pkg/RCS/models"
+import (
+	"github.com/osamingo/jsonrpc/v2"
+	"github.com/vault-thirteen/RingCaptcha/pkg/RCS/models"
+)
 
-// Server functions.
+// RPC functions.
 
 func (srv *Server) createCaptcha() (resp *models.CreateCaptchaResponse, err error) {
 	srv.cmGuard.Lock()
@@ -26,4 +29,13 @@ func (srv *Server) checkCaptcha(req *models.CheckCaptchaRequest) (resp *models.C
 	}
 
 	return resp, nil
+}
+
+func (srv *Server) showDiagnosticData() (result *models.ShowDiagnosticDataResult, jerr *jsonrpc.Error) {
+	result = &models.ShowDiagnosticDataResult{
+		TotalRequestsCount:      srv.diag.getTotalRequestsCount(),
+		SuccessfulRequestsCount: srv.diag.getSuccessfulRequestsCount(),
+	}
+
+	return result, nil
 }

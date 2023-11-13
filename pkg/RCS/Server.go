@@ -37,6 +37,9 @@ type Server struct {
 
 	// JSON-RPC handlers.
 	jsonRpcHandlers *jsonrpc.MethodRepository
+
+	// Diagnostic data.
+	diag *DiagnosticData
 }
 
 func NewServer(stn *settings.Settings) (srv *Server, err error) {
@@ -62,6 +65,11 @@ func NewServer(stn *settings.Settings) (srv *Server, err error) {
 	}
 
 	err = srv.initCaptchaManager()
+	if err != nil {
+		return nil, err
+	}
+
+	err = srv.initDiagnosticData()
 	if err != nil {
 		return nil, err
 	}
@@ -190,6 +198,12 @@ func (srv *Server) initCaptchaManager() (err error) {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func (srv *Server) initDiagnosticData() (err error) {
+	srv.diag = &DiagnosticData{}
 
 	return nil
 }

@@ -19,7 +19,7 @@ const (
 )
 
 func (srv *Server) initJsonRpcHandlers() (err error) {
-	err = srv.jsonRpcHandlers.RegisterMethod(client.FuncPing, PingHandler{}, models.PingParams{}, models.PingResult{})
+	err = srv.jsonRpcHandlers.RegisterMethod(client.FuncPing, PingHandler{Server: srv}, models.PingParams{}, models.PingResult{})
 	if err != nil {
 		return err
 	}
@@ -34,10 +34,17 @@ func (srv *Server) initJsonRpcHandlers() (err error) {
 		return err
 	}
 
+	err = srv.jsonRpcHandlers.RegisterMethod(client.FuncShowDiagnosticData, ShowDiagnosticDataHandler{Server: srv}, models.ShowDiagnosticDataParams{}, models.ShowDiagnosticDataResult{})
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-type PingHandler struct{}
+type PingHandler struct {
+	Server *Server
+}
 
 func (h PingHandler) ServeJSONRPC(c context.Context, params *json.RawMessage) (any, *jsonrpc.Error) {
 	return models.PingResult{OK: true}, nil
@@ -107,4 +114,28 @@ func (h CheckCaptchaHandler) ServeJSONRPC(c context.Context, params *json.RawMes
 	rpcResponse.TimeSpent = time.Now().Sub(timeStart).Milliseconds()
 
 	return rpcResponse, nil
+}
+
+type ShowDiagnosticDataHandler struct {
+	Server *Server
+}
+
+func (h ShowDiagnosticDataHandler) ServeJSONRPC(_ context.Context, _ *json.RawMessage) (any, *jsonrpc.Error) {
+	h.Server.diag.incTotalRequestsCount()
+
+	var timeStart = time.Now()
+
+	result, jerr := h.Server.showDiagnosticData()
+	if jerr != nil {
+		return nil, jerr
+	}
+
+	var taskDuration = time.Now().Sub(timeStart).Milliseconds()
+	if result != nil {
+		result.TimeSpent = taskDuration
+	}
+
+	h.Server.diag.incSuccessfulRequestsCount()
+
+	return result, nil
 }

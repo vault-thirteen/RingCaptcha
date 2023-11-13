@@ -8,9 +8,10 @@ import (
 
 // List of supported functions.
 const (
-	FuncPing          = "Ping"
-	FuncCreateCaptcha = "CreateCaptcha"
-	FuncCheckCaptcha  = "CheckCaptcha"
+	FuncPing               = "Ping"
+	FuncCreateCaptcha      = "CreateCaptcha"
+	FuncCheckCaptcha       = "CheckCaptcha"
+	FuncShowDiagnosticData = "ShowDiagnosticData"
 )
 
 func NewClient(host string, port uint16, path string) jc.RPCClient {
