@@ -13,6 +13,17 @@ The service can either return the created captcha image in its _RPC_ response or
 it can save it to disk storage and provide access to saved images via a separate 
 _HTTP_ server. The behaviour is configurable.
 
+## List of functions
+
+The service provides following functions and methods.
+
+| Function           | Description               |
+|--------------------|---------------------------|
+| Ping               | Pings the server          |
+| CreateCaptcha      | Creates a captcha         |
+| CheckCaptcha       | Checks the captcha answer |
+| ShowDiagnosticData | Shows diagnostic data     |
+
 # Messages
 Examples of requests and responses are provided below.
 
@@ -169,10 +180,41 @@ Liveness handler is accessible with the same _JSON-RPC 2.0_ interface.
 ### Liveness response
 ```json
 {
-  "jsonrpc": "2.0",
-  "result": {
-    "ok": true
-  },
-  "id": 3
+    "jsonrpc": "2.0",
+    "result": {
+        "ok": true
+    },
+    "id": 3
+}
+```
+
+## Diagnostics handler
+
+Diagnostics handler is accessible with the same _JSON-RPC 2.0_ interface.
+
+Note that a call to the diagnostics handler itself is also counted as a
+request, and while the response of this handler is being prepared the request
+is still in progress, i.e. not finished. This leads to a deviation of counters.
+
+Request:
+```json
+{
+    "jsonrpc": "2.0",
+    "id": 4,
+    "method": "ShowDiagnosticData",
+    "params": {}
+}
+```
+
+Response:
+```json
+{
+    "jsonrpc": "2.0",
+    "result": {
+        "timeSpent": 0,
+        "totalRequestsCount": 100,
+        "successfulRequestsCount": 99
+    },
+    "id": 4
 }
 ```
