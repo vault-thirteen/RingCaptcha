@@ -32,8 +32,8 @@ github.com/vault-thirteen/auxie v0.14.0 h1:q0e+kQANfJ+l4Zp2cvDqvNv2wGTC0Rq2P8hPw
 github.com/vault-thirteen/auxie v0.14.0/go.mod h1:3lXNJU7tjeByv/gPKCJv4JhEM8AqsbUy8ZO4Vh+HI0U=
 github.com/vault-thirteen/errorz v1.2.0 h1:i2w9yHqYrsqOWyVPVMeEfv1TIATULW8PxnRGhySeyZ8=
 github.com/vault-thirteen/errorz v1.2.0/go.mod h1:+1mqgPir0fmbjS/MmElLOouoNycetmwtYdmmbjQI9PI=
-github.com/vault-thirteen/header v1.3.0 h1:mvmd0AAOst1BlwpmYcf6iRfPTXcbIEwJOrrvXVwUhac=
-github.com/vault-thirteen/header v1.3.0/go.mod h1:d5OZnwd79kKmCq0pGM++vmFdpZpYKDnnpYa0Nw1nTxo=
+github.com/vault-thirteen/header v1.4.0 h1:ddFPWEJOpXqHoNNKpEdq9Kt3J+JXhxZBaRLgOknQZ+A=
+github.com/vault-thirteen/header v1.4.0/go.mod h1:d5OZnwd79kKmCq0pGM++vmFdpZpYKDnnpYa0Nw1nTxo=
 github.com/vault-thirteen/tester v1.2.0 h1:eUfPZqS5bXbQ+6Zed9EceN3ddsOBBMZoU0y+/eJV8cc=
 github.com/vault-thirteen/tester v1.2.0/go.mod h1:UT1/YEVk2UWl+Jt7c/JhAw5LZwe5qL1cbK/QS016HrQ=
 github.com/ybbus/jsonrpc/v3 v3.1.4 h1:pPmgfWXnqR2GdIlealyCzmV6LV3nxm3w9gwA1B3cP3Y=

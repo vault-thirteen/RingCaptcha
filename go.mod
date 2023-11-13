@@ -8,7 +8,7 @@ require (
 	github.com/vault-thirteen/Versioneer v0.8.0
 	github.com/vault-thirteen/auxie v0.14.0
 	github.com/vault-thirteen/errorz v1.2.0
-	github.com/vault-thirteen/header v1.3.0
+	github.com/vault-thirteen/header v1.4.0
 	github.com/vault-thirteen/tester v1.2.0
 	github.com/ybbus/jsonrpc/v3 v3.1.4
 	golang.org/x/image v0.14.0
