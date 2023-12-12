@@ -3,7 +3,7 @@ module github.com/vault-thirteen/RingCaptcha
 go 1.20
 
 require (
-	github.com/google/uuid v1.4.0
+	github.com/google/uuid v1.5.0
 	github.com/vault-thirteen/auxie v0.15.2
 	github.com/vault-thirteen/errorz v1.2.0
 	github.com/vault-thirteen/header v1.4.0
