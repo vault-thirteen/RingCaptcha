@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/vault-thirteen/errorz"
+	ae "github.com/vault-thirteen/auxie/errors"
 )
 
 const ErrFFileExtensionMismatch = "file extension mismatch: png vs %s"
@@ -28,7 +28,7 @@ func SaveImageAsPngFile(img image.Image, filePath string) (err error) {
 	defer func() {
 		derr := f.Close()
 		if derr != nil {
-			err = errorz.Combine(err, derr)
+			err = ae.Combine(err, derr)
 		}
 	}()
 

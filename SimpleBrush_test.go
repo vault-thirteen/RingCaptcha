@@ -4,7 +4,7 @@ import (
 	"image"
 	"testing"
 
-	"github.com/vault-thirteen/tester"
+	"github.com/vault-thirteen/auxie/tester"
 )
 
 // go test -bench=. -benchmem

@@ -17,7 +17,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	hdr "github.com/vault-thirteen/header"
+	hdr "github.com/vault-thirteen/auxie/header"
 )
 
 const (

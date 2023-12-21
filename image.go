@@ -10,7 +10,7 @@ import (
 	"math"
 	"os"
 
-	"github.com/vault-thirteen/errorz"
+	ae "github.com/vault-thirteen/auxie/errors"
 	_ "golang.org/x/image/bmp"
 	_ "golang.org/x/image/ccitt"
 	_ "golang.org/x/image/colornames"
@@ -36,7 +36,7 @@ func GetImageFromFilePath(filePath string) (img image.Image, err error) {
 	defer func() {
 		derr := f.Close()
 		if derr != nil {
-			err = errorz.Combine(err, derr)
+			err = ae.Combine(err, derr)
 		}
 	}()
 
