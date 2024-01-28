@@ -1,4 +1,4 @@
-package rc
+package server
 
 import (
 	"bytes"
@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/vault-thirteen/RingCaptcha"
 	hdr "github.com/vault-thirteen/auxie/header"
 )
 
@@ -24,7 +25,8 @@ const (
 	ErrImagesFolderIsNotSet = "images folder is not set"
 	ErrImageWidthIsNotSet   = "image width is not set"
 	ErrImageHeightIsNotSet  = "image height is not set"
-	ErrImageTTLIsNotSet     = "image TTL is not set"
+	ErrImageTtlIsNotSet     = "image TTL is not set"
+	ErrCacheSettingsError   = "error in cache settings"
 )
 
 const (
@@ -49,7 +51,7 @@ type CaptchaManager struct {
 	imagesFolder             string
 	imageWidth               uint
 	imageHeight              uint
-	imageTTLSec              uint
+	imageTtlSec              uint
 	registry                 *Registry
 	clearImagesFolderAtStart bool
 
@@ -62,6 +64,12 @@ type CaptchaManager struct {
 
 	// Storage guard.
 	sg *sync.Mutex
+
+	// Cache.
+	isCachingEnabled bool
+	cacheSizeLimit   int
+	cacheVolumeLimit int
+	cacheRecordTtl   uint
 }
 
 func NewCaptchaManager(
@@ -69,13 +77,17 @@ func NewCaptchaManager(
 	imagesFolder string,
 	imageWidth uint,
 	imageHeight uint,
-	imageTTLSec uint,
+	imageTtlSec uint,
 	clearImagesFolderAtStart bool,
 	useHttpServerForImages bool,
 	httpHost string,
 	httpPort uint16,
 	httpErrorsChan *chan error,
 	httpServerName string,
+	isCachingEnabled bool,
+	cacheSizeLimit int,
+	cacheVolumeLimit int,
+	cacheRecordTtl uint,
 ) (cm *CaptchaManager, err error) {
 	if storeImages {
 		if len(imagesFolder) == 0 {
@@ -89,8 +101,17 @@ func NewCaptchaManager(
 	if imageHeight == 0 {
 		return nil, errors.New(ErrImageHeightIsNotSet)
 	}
-	if imageTTLSec == 0 {
-		return nil, errors.New(ErrImageTTLIsNotSet)
+	if imageTtlSec == 0 {
+		return nil, errors.New(ErrImageTtlIsNotSet)
+	}
+
+	if isCachingEnabled {
+		if (cacheSizeLimit <= 0) ||
+			(cacheVolumeLimit <= 0) ||
+			(cacheRecordTtl == 0) ||
+			(cacheRecordTtl > imageTtlSec) {
+			return nil, errors.New(ErrCacheSettingsError)
+		}
 	}
 
 	cm = &CaptchaManager{
@@ -98,11 +119,27 @@ func NewCaptchaManager(
 		imagesFolder:             imagesFolder,
 		imageWidth:               imageWidth,
 		imageHeight:              imageHeight,
-		imageTTLSec:              imageTTLSec,
-		registry:                 NewRegistry(storeImages, imagesFolder, imageTTLSec),
+		imageTtlSec:              imageTtlSec,
 		clearImagesFolderAtStart: clearImagesFolderAtStart,
 		useHttpServerForImages:   useHttpServerForImages,
 		sg:                       new(sync.Mutex),
+		isCachingEnabled:         isCachingEnabled,
+		cacheSizeLimit:           cacheSizeLimit,
+		cacheVolumeLimit:         cacheVolumeLimit,
+		cacheRecordTtl:           cacheRecordTtl,
+	}
+
+	cm.registry, err = NewRegistry(
+		storeImages,
+		imagesFolder,
+		imageTtlSec,
+		cm.isCachingEnabled,
+		cm.cacheSizeLimit,
+		cm.cacheVolumeLimit,
+		cm.cacheRecordTtl,
+	)
+	if err != nil {
+		return nil, err
 	}
 
 	if cm.clearImagesFolderAtStart {
@@ -177,7 +214,7 @@ func (cm *CaptchaManager) httpRouter(rw http.ResponseWriter, req *http.Request) 
 
 	var fileContents []byte
 	var err error
-	fileContents, err = cm.readFile(id)
+	fileContents, err = cm.getImageFile(id)
 	if err != nil {
 		log.Println(err)
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -197,7 +234,7 @@ func (cm *CaptchaManager) httpRouter(rw http.ResponseWriter, req *http.Request) 
 func (cm *CaptchaManager) CreateCaptcha() (resp *CreateCaptchaResponse, err error) {
 	var img *image.NRGBA
 	var ringCount uint
-	img, ringCount, err = CreateCaptchaImage(cm.imageWidth, cm.imageHeight, true, false)
+	img, ringCount, err = rc.CreateCaptchaImage(cm.imageWidth, cm.imageHeight, true, false)
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +257,7 @@ func (cm *CaptchaManager) CreateCaptcha() (resp *CreateCaptchaResponse, err erro
 		}
 	}
 
-	// Register the answer in database.
+	// Register the answer.
 	err = cm.registry.AddRecord(resp.TaskId, ringCount)
 	if err != nil {
 		return nil, err
@@ -252,7 +289,7 @@ func (cm *CaptchaManager) saveImage(uid string, img *image.NRGBA) (err error) {
 	cm.sg.Lock()
 	defer cm.sg.Unlock()
 
-	err = SaveImageAsPngFile(img, makeRecordFilePath(cm.imagesFolder, uid))
+	err = rc.SaveImageAsPngFile(img, MakeRecordFilePath(cm.imagesFolder, uid))
 	if err != nil {
 		return err
 	}
@@ -318,6 +355,6 @@ func (cm *CaptchaManager) isIdRegistered(id string) (isRegistered bool) {
 	return cm.registry.IsIdRegistered(id)
 }
 
-func (cm *CaptchaManager) readFile(id string) (data []byte, err error) {
-	return cm.registry.ReadFile(id)
+func (cm *CaptchaManager) getImageFile(id string) (data []byte, err error) {
+	return cm.registry.GetImageFile(id)
 }

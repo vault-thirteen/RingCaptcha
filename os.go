@@ -39,7 +39,3 @@ func SaveImageAsPngFile(img image.Image, filePath string) (err error) {
 
 	return nil
 }
-
-func makeRecordFilePath(imagesFolder string, id string) (path string) {
-	return filepath.Join(imagesFolder, id+"."+ImageFileExt)
-}
