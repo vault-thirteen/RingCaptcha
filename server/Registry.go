@@ -96,7 +96,7 @@ func (r *Registry) ClearJunk() (err error) {
 		if rec.IsExpired() {
 			delete(r.records, id)
 
-			_ = r.fileServer.ForgetFile(id)
+			_ = r.fileServer.ForgetFile(MakeFileName(id))
 
 			if r.storeImages {
 				err = r.deleteRecordFile(id)
@@ -123,7 +123,7 @@ func (r *Registry) GetImageFile(id string) (data []byte, err error) {
 	}
 
 	var fileExists bool
-	data, fileExists, err = r.fileServer.GetFile(id)
+	data, fileExists, err = r.fileServer.GetFile(MakeFileName(id))
 	if err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func (r *Registry) CheckCaptcha(id string, value uint) (ok bool, err error) {
 func (r *Registry) removeCaptcha(id string) (err error) {
 	delete(r.records, id)
 
-	_ = r.fileServer.ForgetFile(id)
+	_ = r.fileServer.ForgetFile(MakeFileName(id))
 
 	if r.storeImages {
 		err = r.deleteRecordFile(id)
