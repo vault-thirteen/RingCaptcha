@@ -6,7 +6,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/vault-thirteen/Simple-File-Server v0.12.7
 	github.com/vault-thirteen/auxie v0.27.2
-	golang.org/x/image v0.21.0
+	golang.org/x/image v0.22.0
 )
 
 require (

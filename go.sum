@@ -14,5 +14,5 @@ github.com/vault-thirteen/Simple-File-Server v0.12.7 h1:hyqVF9rhcYIsImki/4OfLjai
 github.com/vault-thirteen/Simple-File-Server v0.12.7/go.mod h1:GJ34hKrugnJ8VN6ihFixh1FTy7D1zllLLj96uihL1bU=
 github.com/vault-thirteen/auxie v0.27.2 h1:B6a6CSMlzi0nFwdaePri6sy4xWgNOamKP56K/DR11uo=
 github.com/vault-thirteen/auxie v0.27.2/go.mod h1:G+0ady0CsIpa3BAzh+MjnhPL4Xdy6IFi7Bzj76SI8NA=
-golang.org/x/image v0.21.0 h1:c5qV36ajHpdj4Qi0GnE0jUc/yuo33OLFaa0d+crTD5s=
-golang.org/x/image v0.21.0/go.mod h1:vUbsLavqK/W303ZroQQVKQ+Af3Yl6Uz1Ppu5J/cLz78=
+golang.org/x/image v0.22.0 h1:UtK5yLUzilVrkjMAZAZ34DXGpASN8i8pj8g+O+yd10g=
+golang.org/x/image v0.22.0/go.mod h1:9hPFhljd4zZ1GNSIZJ49sqbp45GKK9t6w+iXvGqZUz4=
