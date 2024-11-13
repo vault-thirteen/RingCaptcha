@@ -1,4 +1,4 @@
-package server
+package models
 
 type CreateCaptchaResponse struct {
 	TaskId              string

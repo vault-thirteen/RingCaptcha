@@ -16,12 +16,15 @@ const (
 )
 
 type Registry struct {
+	// Settings.
 	storeImages  bool
 	imagesFolder string
 	recordTtlSec float64
-	records      map[string]*RegistryRecord
-	guard        *sync.Mutex
-	fileServer   *sfs.SimpleFileServer
+
+	// Internal structures.
+	records    map[string]*RegistryRecord
+	guard      *sync.Mutex
+	fileServer *sfs.SimpleFileServer
 }
 
 func NewRegistry(

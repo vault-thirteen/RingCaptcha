@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"image"
 	"image/png"
@@ -18,15 +17,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/vault-thirteen/RingCaptcha"
+	"github.com/vault-thirteen/RingCaptcha/server/models"
 	hdr "github.com/vault-thirteen/auxie/header"
-)
-
-const (
-	ErrImagesFolderIsNotSet = "images folder is not set"
-	ErrImageWidthIsNotSet   = "image width is not set"
-	ErrImageHeightIsNotSet  = "image height is not set"
-	ErrImageTtlIsNotSet     = "image TTL is not set"
-	ErrCacheSettingsError   = "error in cache settings"
 )
 
 const (
@@ -46,103 +38,47 @@ const (
 
 // CaptchaManager is a captcha manager.
 type CaptchaManager struct {
-	// Images.
-	storeImages              bool
-	imagesFolder             string
-	imageWidth               uint
-	imageHeight              uint
-	imageTtlSec              uint
-	registry                 *Registry
-	clearImagesFolderAtStart bool
-
-	// HTTP server.
-	useHttpServerForImages bool
-	httpServer             *http.Server
-	listenDsn              string
-	httpErrorsChan         *chan error
-	httpServerName         string
+	// Settings.
+	settings *models.CaptchaManagerSettings
 
 	// Storage guard.
 	sg *sync.Mutex
 
-	// Cache.
-	isCachingEnabled bool
-	cacheSizeLimit   int
-	cacheVolumeLimit int
-	cacheRecordTtl   uint
+	// Registry.
+	registry *Registry
+
+	// HTTP server.
+	httpServer     *http.Server
+	listenDsn      string
+	httpErrorsChan *chan error
+	httpServerName string
 }
 
-func NewCaptchaManager(
-	storeImages bool,
-	imagesFolder string,
-	imageWidth uint,
-	imageHeight uint,
-	imageTtlSec uint,
-	clearImagesFolderAtStart bool,
-	useHttpServerForImages bool,
-	httpHost string,
-	httpPort uint16,
-	httpErrorsChan *chan error,
-	httpServerName string,
-	isCachingEnabled bool,
-	cacheSizeLimit int,
-	cacheVolumeLimit int,
-	cacheRecordTtl uint,
-) (cm *CaptchaManager, err error) {
-	if storeImages {
-		if len(imagesFolder) == 0 {
-			return nil, errors.New(ErrImagesFolderIsNotSet)
-		}
-	}
-
-	if imageWidth == 0 {
-		return nil, errors.New(ErrImageWidthIsNotSet)
-	}
-	if imageHeight == 0 {
-		return nil, errors.New(ErrImageHeightIsNotSet)
-	}
-	if imageTtlSec == 0 {
-		return nil, errors.New(ErrImageTtlIsNotSet)
-	}
-
-	if isCachingEnabled {
-		if (cacheSizeLimit <= 0) ||
-			(cacheVolumeLimit <= 0) ||
-			(cacheRecordTtl == 0) ||
-			(cacheRecordTtl > imageTtlSec) {
-			return nil, errors.New(ErrCacheSettingsError)
-		}
+func NewCaptchaManager(s *models.CaptchaManagerSettings) (cm *CaptchaManager, err error) {
+	err = s.Check()
+	if err != nil {
+		return nil, err
 	}
 
 	cm = &CaptchaManager{
-		storeImages:              storeImages,
-		imagesFolder:             imagesFolder,
-		imageWidth:               imageWidth,
-		imageHeight:              imageHeight,
-		imageTtlSec:              imageTtlSec,
-		clearImagesFolderAtStart: clearImagesFolderAtStart,
-		useHttpServerForImages:   useHttpServerForImages,
-		sg:                       new(sync.Mutex),
-		isCachingEnabled:         isCachingEnabled,
-		cacheSizeLimit:           cacheSizeLimit,
-		cacheVolumeLimit:         cacheVolumeLimit,
-		cacheRecordTtl:           cacheRecordTtl,
+		settings: s,
+		sg:       new(sync.Mutex),
 	}
 
 	cm.registry, err = NewRegistry(
-		storeImages,
-		imagesFolder,
-		imageTtlSec,
-		cm.isCachingEnabled,
-		cm.cacheSizeLimit,
-		cm.cacheVolumeLimit,
-		cm.cacheRecordTtl,
+		cm.settings.IsImageStorageUsed,
+		cm.settings.ImagesFolder,
+		cm.settings.ImageTtlSec,
+		cm.settings.IsCachingEnabled,
+		cm.settings.CacheSizeLimit,
+		cm.settings.CacheVolumeLimit,
+		cm.settings.CacheRecordTtl,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	if cm.clearImagesFolderAtStart {
+	if cm.settings.IsImageCleanupAtStartUsed {
 		fmt.Print(MsgCleaningImagesFolder)
 		err = cm.clearImagesFolder()
 		if err != nil {
@@ -151,14 +87,17 @@ func NewCaptchaManager(
 		fmt.Println(MsgDone)
 	}
 
-	if cm.useHttpServerForImages {
-		err = cm.initHttpServer(httpHost, httpPort, httpErrorsChan, httpServerName)
+	if cm.settings.IsImageServerEnabled {
+		err = cm.initHttpServer(
+			cm.settings.HttpHost,
+			cm.settings.HttpPort,
+			cm.settings.HttpErrorsChan,
+			cm.settings.HttpServerName,
+		)
 		if err != nil {
 			return nil, err
 		}
 	}
-
-	log.Println(MsgCaptchaManagerStart)
 
 	return cm, nil
 }
@@ -177,6 +116,10 @@ func (cm *CaptchaManager) initHttpServer(
 	cm.httpErrorsChan = httpErrorsChan
 	cm.httpServerName = httpServerName
 
+	return nil
+}
+
+func (cm *CaptchaManager) Start() (err error) {
 	go func() {
 		var listenError error
 		listenError = cm.httpServer.ListenAndServe()
@@ -185,6 +128,8 @@ func (cm *CaptchaManager) initHttpServer(
 			*cm.httpErrorsChan <- listenError
 		}
 	}()
+
+	log.Println(MsgCaptchaManagerStart)
 
 	return nil
 }
@@ -206,7 +151,7 @@ func (cm *CaptchaManager) httpRouter(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	if !cm.storeImages {
+	if !cm.settings.IsImageStorageUsed {
 		// No images are stored. Sorry.
 		rw.WriteHeader(http.StatusForbidden)
 		return
@@ -231,18 +176,18 @@ func (cm *CaptchaManager) httpRouter(rw http.ResponseWriter, req *http.Request) 
 	}
 }
 
-func (cm *CaptchaManager) CreateCaptcha() (resp *CreateCaptchaResponse, err error) {
+func (cm *CaptchaManager) CreateCaptcha() (resp *models.CreateCaptchaResponse, err error) {
 	var img *image.NRGBA
 	var ringCount uint
-	img, ringCount, err = rc.CreateCaptchaImage(cm.imageWidth, cm.imageHeight, true, false)
+	img, ringCount, err = rc.CreateCaptchaImage(cm.settings.ImageWidth, cm.settings.ImageHeight, true, false)
 	if err != nil {
 		return nil, err
 	}
 
-	resp = &CreateCaptchaResponse{
+	resp = &models.CreateCaptchaResponse{
 		TaskId:              cm.createRandomUID(),
 		ImageFormat:         ImageFormat,
-		IsImageDataReturned: !cm.storeImages,
+		IsImageDataReturned: !cm.settings.IsImageStorageUsed,
 	}
 
 	if resp.IsImageDataReturned {
@@ -266,14 +211,14 @@ func (cm *CaptchaManager) CreateCaptcha() (resp *CreateCaptchaResponse, err erro
 	return resp, nil
 }
 
-func (cm *CaptchaManager) CheckCaptcha(req *CheckCaptchaRequest) (resp *CheckCaptchaResponse, err error) {
+func (cm *CaptchaManager) CheckCaptcha(req *models.CheckCaptchaRequest) (resp *models.CheckCaptchaResponse, err error) {
 	var ok bool
 	ok, err = cm.registry.CheckCaptcha(req.TaskId, req.Value)
 	if err != nil {
 		return nil, err
 	}
 
-	resp = &CheckCaptchaResponse{
+	resp = &models.CheckCaptchaResponse{
 		TaskId:    req.TaskId,
 		IsSuccess: ok,
 	}
@@ -289,7 +234,7 @@ func (cm *CaptchaManager) saveImage(uid string, img *image.NRGBA) (err error) {
 	cm.sg.Lock()
 	defer cm.sg.Unlock()
 
-	err = rc.SaveImageAsPngFile(img, MakeRecordFilePath(cm.imagesFolder, uid))
+	err = rc.SaveImageAsPngFile(img, MakeRecordFilePath(cm.settings.ImagesFolder, uid))
 	if err != nil {
 		return err
 	}
@@ -314,13 +259,13 @@ func (cm *CaptchaManager) ClearJunk() (err error) {
 
 func (cm *CaptchaManager) clearImagesFolder() (err error) {
 	var items []os.DirEntry
-	items, err = os.ReadDir(cm.imagesFolder)
+	items, err = os.ReadDir(cm.settings.ImagesFolder)
 	if err != nil {
 		return err
 	}
 
 	for _, item := range items {
-		err = os.RemoveAll(filepath.Join(cm.imagesFolder, item.Name()))
+		err = os.RemoveAll(filepath.Join(cm.settings.ImagesFolder, item.Name()))
 		if err != nil {
 			return err
 		}
