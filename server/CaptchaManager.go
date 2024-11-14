@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"image"
 	"image/png"
@@ -34,6 +35,11 @@ const (
 	MsgDone                 = "Done"
 	MsgCaptchaManagerStart  = "Captcha manager has started"
 	MsgCaptchaManagerStop   = "Captcha manager has been stopped"
+)
+
+const (
+	Err_RequestIsAbsent = "request is absent"
+	Err_IdIsNotSet      = "id is not set"
 )
 
 // CaptchaManager is a captcha manager.
@@ -212,6 +218,14 @@ func (cm *CaptchaManager) CreateCaptcha() (resp *models.CreateCaptchaResponse, e
 }
 
 func (cm *CaptchaManager) CheckCaptcha(req *models.CheckCaptchaRequest) (resp *models.CheckCaptchaResponse, err error) {
+	// Fool check.
+	if req == nil {
+		return nil, errors.New(Err_RequestIsAbsent)
+	}
+	if len(req.TaskId) == 0 {
+		return nil, errors.New(Err_IdIsNotSet)
+	}
+
 	var ok bool
 	var isFound bool
 	ok, isFound, err = cm.registry.CheckCaptcha(req.TaskId, req.Value)
@@ -223,6 +237,23 @@ func (cm *CaptchaManager) CheckCaptcha(req *models.CheckCaptchaRequest) (resp *m
 		TaskId:    req.TaskId,
 		IsFound:   isFound,
 		IsSuccess: ok,
+	}
+
+	return resp, nil
+}
+
+func (cm *CaptchaManager) HasCaptcha(req *models.HasCaptchaRequest) (resp *models.HasCaptchaResponse, err error) {
+	// Fool check.
+	if req == nil {
+		return nil, errors.New(Err_RequestIsAbsent)
+	}
+	if len(req.TaskId) == 0 {
+		return nil, errors.New(Err_IdIsNotSet)
+	}
+
+	resp = &models.HasCaptchaResponse{
+		TaskId:  req.TaskId,
+		IsFound: cm.isIdRegistered(req.TaskId),
 	}
 
 	return resp, nil
