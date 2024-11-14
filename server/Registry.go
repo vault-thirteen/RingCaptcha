@@ -137,25 +137,25 @@ func (r *Registry) GetImageFile(id string) (data []byte, err error) {
 	return data, nil
 }
 
-func (r *Registry) CheckCaptcha(id string, value uint) (ok bool, err error) {
+func (r *Registry) CheckCaptcha(id string, value uint) (ok bool, isFound bool, err error) {
 	r.guard.Lock()
 	defer r.guard.Unlock()
 
 	rec, isRegistered := r.records[id]
 	if !isRegistered {
-		return false, fmt.Errorf(ErrFAbsentId, id)
+		return false, false, nil
 	}
 
 	// Captcha is deleted after a first guess.
 	err = r.removeCaptcha(id)
 	if err != nil {
-		return false, err
+		return false, true, err
 	}
 
 	if value != rec.Answer {
-		return false, nil
+		return false, true, nil
 	} else {
-		return true, nil
+		return true, true, nil
 	}
 }
 

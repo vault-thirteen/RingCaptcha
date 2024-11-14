@@ -213,13 +213,15 @@ func (cm *CaptchaManager) CreateCaptcha() (resp *models.CreateCaptchaResponse, e
 
 func (cm *CaptchaManager) CheckCaptcha(req *models.CheckCaptchaRequest) (resp *models.CheckCaptchaResponse, err error) {
 	var ok bool
-	ok, err = cm.registry.CheckCaptcha(req.TaskId, req.Value)
+	var isFound bool
+	ok, isFound, err = cm.registry.CheckCaptcha(req.TaskId, req.Value)
 	if err != nil {
 		return nil, err
 	}
 
 	resp = &models.CheckCaptchaResponse{
 		TaskId:    req.TaskId,
+		IsFound:   isFound,
 		IsSuccess: ok,
 	}
 
