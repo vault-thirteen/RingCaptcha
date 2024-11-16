@@ -1,7 +1,9 @@
-package rc
+package c
 
 import (
 	"math"
+
+	m "github.com/vault-thirteen/RingCaptcha/models"
 )
 
 type BrushColour struct {
@@ -24,10 +26,10 @@ var (
 
 // RGBA method of the color.Color interface.
 func (bc BrushColour) RGBA() (r, g, b, a uint32) {
-	return uint32(math.Round(bc.R * C1)),
-		uint32(math.Round(bc.G * C1)),
-		uint32(math.Round(bc.B * C1)),
-		uint32(math.Round(bc.A * C1))
+	return uint32(math.Round(bc.R * m.C1)),
+		uint32(math.Round(bc.G * m.C1)),
+		uint32(math.Round(bc.B * m.C1)),
+		uint32(math.Round(bc.A * m.C1))
 }
 
 func (bc BrushColour) StraightToPremultiplied() (out BrushColour) {

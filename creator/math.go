@@ -1,4 +1,4 @@
-package rc
+package c
 
 func MinInt(a, b int) (min int) {
 	if a <= b {

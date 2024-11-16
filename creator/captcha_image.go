@@ -1,4 +1,4 @@
-package rc
+package c
 
 import (
 	"errors"
@@ -6,33 +6,13 @@ import (
 	"image/color"
 	"math"
 
+	"github.com/vault-thirteen/RingCaptcha/models"
 	"github.com/vault-thirteen/auxie/random"
 )
 
-const (
-	CaptchaImageMinWidth    = 128
-	CaptchaImageMinHeight   = 128
-	RingMinCount            = 3
-	RingMaxCount            = 6
-	RingMinRadius           = 24
-	BrushOuterRadiusMin     = 2
-	BrushOuterRadiusMax     = 32
-	ColourComponentMaxValue = 65535
-	KR                      = 0.5
-	KDMin                   = 1.0
-	KDMax                   = 1.5
-)
-
-const (
-	ErrDimensions         = "dimensions error"
-	ErrBrushRadiusRatio   = "brush radius ratio error"
-	ErrDensityCoefficient = "density coefficient error"
-	ErrAnomaly            = "anomaly"
-)
-
 func CreateCaptchaImage(w, h uint, useSample bool, blend bool) (canvas *image.NRGBA, ringCount uint, err error) {
-	if (w < CaptchaImageMinWidth) || (h < CaptchaImageMinHeight) {
-		return nil, 0, errors.New(ErrDimensions)
+	if (w < m.CaptchaImageMinWidth) || (h < m.CaptchaImageMinHeight) {
+		return nil, 0, errors.New(m.Err_Dimensions)
 	}
 
 	var bg *image.NRGBA
@@ -41,7 +21,7 @@ func CreateCaptchaImage(w, h uint, useSample bool, blend bool) (canvas *image.NR
 		return nil, 0, err
 	}
 
-	ringCount, err = random.Uint(RingMinCount, selectMaxRingCount(w, h))
+	ringCount, err = random.Uint(m.RingMinCount, selectMaxRingCount(w, h))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -80,13 +60,13 @@ func selectMaxRingCount(w, h uint) (maxRingCount uint) {
 	minDim := math.Min(float64(w), float64(h))
 
 	if minDim <= 128 {
-		return MinUint(RingMinCount+1, RingMaxCount)
+		return MinUint(m.RingMinCount+1, m.RingMaxCount)
 	}
 	if minDim <= 160 {
-		return MinUint(RingMinCount+2, RingMaxCount)
+		return MinUint(m.RingMinCount+2, m.RingMaxCount)
 	}
 
-	return RingMaxCount
+	return m.RingMaxCount
 }
 
 func createRingLayer(w, h uint, useSample bool, blend bool) (canvas *image.NRGBA, err error) {
@@ -112,7 +92,7 @@ func createRingLayer(w, h uint, useSample bool, blend bool) (canvas *image.NRGBA
 
 	// Select a ring radius.
 	var ringRadius float64
-	ringRadius, err = createRadius(uint(math.Round(math.Min(float64(w), float64(h)) * KR)))
+	ringRadius, err = createRadius(uint(math.Round(math.Min(float64(w), float64(h)) * m.KR)))
 	if err != nil {
 		return nil, err
 	}
@@ -141,10 +121,10 @@ func createBrush(canvasW, canvasH uint) (br *SimpleBrush, err error) {
 
 	minDimension := math.Min(float64(canvasW), float64(canvasH))
 
-	maxRadius := uint(math.Round(math.Max(float64(BrushOuterRadiusMin), math.Min(minDimension/16.0, float64(BrushOuterRadiusMax)/1.0))))
+	maxRadius := uint(math.Round(math.Max(float64(m.BrushOuterRadiusMin), math.Min(minDimension/16.0, float64(m.BrushOuterRadiusMax)/1.0))))
 
 	var brushOuterRadius uint
-	brushOuterRadius, err = random.Uint(BrushOuterRadiusMin, maxRadius)
+	brushOuterRadius, err = random.Uint(m.BrushOuterRadiusMin, maxRadius)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +150,7 @@ func createBrush(canvasW, canvasH uint) (br *SimpleBrush, err error) {
 	case 3:
 		br.InnerRadius = float64(brushOuterRadius) / 3.0
 	default:
-		return nil, errors.New(ErrBrushRadiusRatio)
+		return nil, errors.New(m.Err_BrushRadiusRatio)
 	}
 
 	return br, nil
@@ -179,24 +159,24 @@ func createBrush(canvasW, canvasH uint) (br *SimpleBrush, err error) {
 func createColour() (c *BrushColour, err error) {
 	var Cr, Cg, Cb uint
 
-	Cr, err = random.Uint(0, ColourComponentMaxValue)
+	Cr, err = random.Uint(0, m.ColourComponentMaxValue)
 	if err != nil {
 		return nil, err
 	}
 
-	Cg, err = random.Uint(0, ColourComponentMaxValue)
+	Cg, err = random.Uint(0, m.ColourComponentMaxValue)
 	if err != nil {
 		return nil, err
 	}
-	Cb, err = random.Uint(0, ColourComponentMaxValue)
+	Cb, err = random.Uint(0, m.ColourComponentMaxValue)
 	if err != nil {
 		return nil, err
 	}
 
 	return &BrushColour{
-		R: float64(Cr) / ColourComponentMaxValue,
-		G: float64(Cg) / ColourComponentMaxValue,
-		B: float64(Cb) / ColourComponentMaxValue,
+		R: float64(Cr) / m.ColourComponentMaxValue,
+		G: float64(Cg) / m.ColourComponentMaxValue,
+		B: float64(Cb) / m.ColourComponentMaxValue,
 		A: 1.0,
 	}, nil
 }
@@ -224,7 +204,7 @@ func createPoint(xMax, yMax uint) (p Point2D, err error) {
 
 func createRadius(rMax uint) (r float64, err error) {
 	var t uint
-	t, err = random.Uint(RingMinRadius, rMax)
+	t, err = random.Uint(m.RingMinRadius, rMax)
 	if err != nil {
 		return 0.0, err
 	}
@@ -244,8 +224,8 @@ func selectDensity(rB, rR float64) (da float64, err error) {
 
 	// [0; 5] -> [1.0; 1.5]
 	var kd = 1.0 + float64(kdSwitch)/10
-	if (kd < KDMin) || (kd > KDMax) {
-		return 0, errors.New(ErrDensityCoefficient)
+	if (kd < m.KDMin) || (kd > m.KDMax) {
+		return 0, errors.New(m.Err_DensityCoefficient)
 	}
 
 	return RadianToDegree(kd * 2 * rB / rR), nil
@@ -271,7 +251,7 @@ func createBG(w, h uint) (bg *image.NRGBA, err error) {
 	case 4:
 		err = FillCanvasWithVGradient(bg, ColourBlack, ColourWhite)
 	default:
-		return nil, errors.New(ErrAnomaly)
+		return nil, errors.New(m.Err_Anomaly)
 	}
 
 	if err != nil {

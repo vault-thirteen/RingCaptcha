@@ -1,6 +1,8 @@
-package server
+package r
 
-import "time"
+import (
+	"time"
+)
 
 // RegistryRecord stores an answer and timing information.
 type RegistryRecord struct {
@@ -10,11 +12,11 @@ type RegistryRecord struct {
 	ToC    time.Time // Time of creation.
 }
 
-func NewRegistryRecord(id string, answer uint, ttl float64) *RegistryRecord {
+func NewRegistryRecord(id string, answer uint, ttl uint) *RegistryRecord {
 	return &RegistryRecord{
 		Id:     id,
 		Answer: answer,
-		TTL:    ttl,
+		TTL:    float64(ttl),
 		ToC:    time.Now(),
 	}
 }

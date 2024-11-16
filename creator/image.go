@@ -1,4 +1,4 @@
-package rc
+package c
 
 import (
 	"errors"
@@ -10,6 +10,7 @@ import (
 	"math"
 	"os"
 
+	"github.com/vault-thirteen/RingCaptcha/models"
 	ae "github.com/vault-thirteen/auxie/errors"
 	_ "golang.org/x/image/bmp"
 	_ "golang.org/x/image/ccitt"
@@ -20,11 +21,6 @@ import (
 	_ "golang.org/x/image/vp8"
 	_ "golang.org/x/image/vp8l"
 	_ "golang.org/x/image/webp"
-)
-
-const (
-	ErrCanvasIsTooSmall              = "canvas is too small"
-	ErrImagesHaveDifferentDimensions = "images have different dimensions"
 )
 
 func GetImageFromFilePath(filePath string) (img image.Image, err error) {
@@ -90,7 +86,7 @@ func DrawImageToCanvas(in *image.RGBA, canvas image.Rectangle) (out *image.NRGBA
 // A is the applied layer, i.e. the top layer.
 func BlendImages(iB *image.NRGBA, iA *image.NRGBA) (iO *image.NRGBA, err error) {
 	if (iB.Rect.Dx() != iA.Rect.Dx()) || (iB.Rect.Dy() != iA.Rect.Dy()) {
-		return nil, errors.New(ErrImagesHaveDifferentDimensions)
+		return nil, errors.New(m.Err_ImagesHaveDifferentDimensions)
 	}
 
 	bnds := iB.Bounds()
@@ -124,10 +120,10 @@ func BlendColourOverlay(cB, cA color.Color) (cO color.Color) {
 // MakeRGBA64 creates an RGBA64 colour with the provided channels.
 func MakeRGBA64(r, g, b, a float64) color.RGBA64 {
 	return color.RGBA64{
-		R: uint16(math.Round(r * C1)),
-		G: uint16(math.Round(g * C1)),
-		B: uint16(math.Round(b * C1)),
-		A: uint16(math.Round(a * C1)),
+		R: uint16(math.Round(r * m.C1)),
+		G: uint16(math.Round(g * m.C1)),
+		B: uint16(math.Round(b * m.C1)),
+		A: uint16(math.Round(a * m.C1)),
 	}
 }
 
@@ -169,7 +165,7 @@ func FillCanvasWithHGradient(canvas *image.NRGBA, cL, cR BrushColour) (err error
 
 	minDim := MinInt(xMax, yMax)
 	if minDim < 3 {
-		return errors.New(ErrCanvasIsTooSmall)
+		return errors.New(m.Err_CanvasIsTooSmall)
 	}
 
 	// Colour deltas.
@@ -202,7 +198,7 @@ func FillCanvasWithVGradient(canvas *image.NRGBA, cT, cB BrushColour) (err error
 
 	minDim := MinInt(xMax, yMax)
 	if minDim < 3 {
-		return errors.New(ErrCanvasIsTooSmall)
+		return errors.New(m.Err_CanvasIsTooSmall)
 	}
 
 	// Colour deltas.
