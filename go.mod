@@ -4,9 +4,9 @@ go 1.20
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/vault-thirteen/Cache v0.17.0
-	github.com/vault-thirteen/Simple-File-Server v0.16.0
-	github.com/vault-thirteen/auxie v0.28.1
+	github.com/vault-thirteen/Cache v0.17.1
+	github.com/vault-thirteen/Simple-File-Server v0.16.1
+	github.com/vault-thirteen/auxie v0.28.2
 	golang.org/x/image v0.22.0
 )
 
