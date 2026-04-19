@@ -13,7 +13,7 @@ github.com/vault-thirteen/Cache v0.17.9 h1:UmztTz+cPKLwIKs4QipmdcDEqFJqZssC7TbEg
 github.com/vault-thirteen/Cache v0.17.9/go.mod h1:RgCYaAE2gYfOPkKXl33O7fuEemqeBn+AlAguhCiuJJc=
 github.com/vault-thirteen/Simple-File-Server v0.16.9 h1:lyEwg/cuF89OBDmFIfLQmmKzyrwvl8LcD5TryNN4T9k=
 github.com/vault-thirteen/Simple-File-Server v0.16.9/go.mod h1:wV4JRgt3z+kF1i0D5pHLIrM1eockMF3/2MkwqbVNPvI=
-github.com/vault-thirteen/auxie v0.31.3 h1:770qHaNVk1c8F+I6vaVv84T/6ohkXGoFQ8ugj17W9cQ=
-github.com/vault-thirteen/auxie v0.31.3/go.mod h1:yXw+rjpHrQS0u/t5uDiDysRURTnZzr1Hlc8N+St46V8=
-golang.org/x/image v0.37.0 h1:ZiRjArKI8GwxZOoEtUfhrBtaCN+4b/7709dlT6SSnQA=
-golang.org/x/image v0.37.0/go.mod h1:/3f6vaXC+6CEanU4KJxbcUZyEePbyKbaLoDOe4ehFYY=
+github.com/vault-thirteen/auxie v0.32.0 h1:zp9kRpT9XjPKrSmQVgM3S0JIKURV3FJBVp2JwM6ABGI=
+github.com/vault-thirteen/auxie v0.32.0/go.mod h1:pu8j9IA2EgAXuuF2qo3sSB1ghbJVJxzRZILAQkMLks0=
+golang.org/x/image v0.39.0 h1:skVYidAEVKgn8lZ602XO75asgXBgLj9G/FE3RbuPFww=
+golang.org/x/image v0.39.0/go.mod h1:sIbmppfU+xFLPIG0FoVUTvyBMmgng1/XAMhQ2ft0hpA=
