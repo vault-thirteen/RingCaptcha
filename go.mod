@@ -4,8 +4,8 @@ go 1.25.9
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/vault-thirteen/Cache v0.17.9
-	github.com/vault-thirteen/Simple-File-Server v0.16.9
+	github.com/vault-thirteen/Cache v0.17.10
+	github.com/vault-thirteen/Simple-File-Server v0.16.10
 	github.com/vault-thirteen/auxie v0.32.0
 	golang.org/x/image v0.39.0
 )
