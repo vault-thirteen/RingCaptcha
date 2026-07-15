@@ -1,17 +1,17 @@
 module github.com/vault-thirteen/RingCaptcha
 
-go 1.25.10
+go 1.25.12
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/vault-thirteen/Cache v0.17.13
-	github.com/vault-thirteen/Simple-File-Server v0.16.13
-	github.com/vault-thirteen/auxie v0.36.5
-	golang.org/x/image v0.40.0
+	github.com/vault-thirteen/Cache v0.17.14
+	github.com/vault-thirteen/Simple-File-Server v0.16.14
+	github.com/vault-thirteen/auxie v0.36.6
+	golang.org/x/image v0.44.0
 )
 
 require (
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
-	github.com/rogpeppe/go-internal v1.14.1 // indirect
+	github.com/rogpeppe/go-internal v1.15.0 // indirect
 )
